@@ -96,10 +96,10 @@
   function updateCountdown() {
     var diff = EVENT_DATE - new Date();
     if (diff <= 0) {
-      if (cdDays) cdDays.textContent = '00';
-      if (cdHours) cdHours.textContent = '00';
-      if (cdMins) cdMins.textContent = '00';
-      if (cdSecs) cdSecs.textContent = '00';
+      if (cdDays) cdDays.textContent = '15';
+      if (cdHours) cdHours.textContent = '15';
+      if (cdMins) cdMins.textContent = '15';
+      if (cdSecs) cdSecs.textContent = '15';
       return;
     }
     var days = Math.floor(diff / (1000 * 60 * 60 * 24));
