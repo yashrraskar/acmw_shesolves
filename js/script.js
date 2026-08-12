@@ -85,7 +85,7 @@
   }
 
   /* ---------- Countdown to event ---------- */
-  var EVENT_DATE = new Date('2026-03-07T09:00:00');
+  var EVENT_DATE = new Date('2026-09-19T09:00:00');
   var cdDays = document.getElementById('cd-days');
   var cdHours = document.getElementById('cd-hours');
   var cdMins = document.getElementById('cd-mins');
@@ -96,10 +96,10 @@
   function updateCountdown() {
     var diff = EVENT_DATE - new Date();
     if (diff <= 0) {
-      if (cdDays) cdDays.textContent = '15';
-      if (cdHours) cdHours.textContent = '15';
-      if (cdMins) cdMins.textContent = '15';
-      if (cdSecs) cdSecs.textContent = '15';
+      if (cdDays) cdDays.textContent = '0';
+      if (cdHours) cdHours.textContent = '0';
+      if (cdMins) cdMins.textContent = '0';
+      if (cdSecs) cdSecs.textContent = '0';
       return;
     }
     var days = Math.floor(diff / (1000 * 60 * 60 * 24));
