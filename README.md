@@ -1,7 +1,11 @@
 # SheSolves 2026 — ACM-W Event Landing Page
 
-A responsive landing page for **SheSolves 2026**, an ACM-W chapter event.
+A responsive landing page for **SheSolves 2026**, an ACM-W chapter event at PCCOE Pune.
 *Code. Create. Empower.*
+
+**Venue:** New Computer Department Library, PCCOE, Pune 61  
+**Date:** Saturday, September 19, 2026 | 9:00 AM – 6:00 PM  
+**Contact:** acmw@pccoepune.org
 
 **Live structure:** `index.html` + `css/styles.css` + `js/script.js`, no build step, no external framework.
 
