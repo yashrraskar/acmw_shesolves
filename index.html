@@ -311,7 +311,68 @@
       </form>
     </div>
   </section>
+    <!-- ============ REGISTRATION MANAGEMENT ============ -->
+  <section class="registration-management section-alt" id="registrations">
+    <div class="wrap">
+      <p class="section-eyebrow">06 — Registration management</p>
+      <h2>Manage registrations</h2>
+      <p class="section-lede">
+        Track participants, manage seats, and export the registration list.
+      </p>
 
+      <div class="registration-stats">
+        <div class="registration-stat">
+          <span>Total registrations</span>
+          <strong id="registration-count">0</strong>
+        </div>
+
+        <div class="registration-stat">
+          <span>Seats remaining</span>
+          <strong id="seats-remaining">150</strong>
+        </div>
+      </div>
+
+      <div class="registration-controls">
+        <input
+          type="search"
+          id="registration-search"
+          placeholder="Search by name or email..."
+          aria-label="Search registrations"
+        >
+
+        <select id="registration-filter" aria-label="Filter by track">
+          <option value="all">All tracks</option>
+          <option value="dsa">Track A — DSA Sprint</option>
+          <option value="build">Track B — Build-a-thon</option>
+          <option value="undecided">Not sure yet</option>
+        </select>
+
+        <button type="button" class="btn btn-primary" id="export-registrations">
+          Export CSV
+        </button>
+      </div>
+
+      <div class="registration-table-wrap">
+        <table class="registration-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Track</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="registration-list">
+            <tr>
+              <td colspan="4" class="empty-registrations">
+                No registrations yet.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
 
 <!-- ============ FOOTER ============ -->

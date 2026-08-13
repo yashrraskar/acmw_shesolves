@@ -118,31 +118,200 @@
     setInterval(updateCountdown, 1000);
   }
 
-  /* ---------- Registration form (demo — no backend) ---------- */
+  /* ---------- Registration management ---------- */
+
   var form = document.getElementById('register-form');
   var formNote = document.getElementById('form-note');
+
+  var registrationCount = document.getElementById('registration-count');
+  var seatsRemaining = document.getElementById('seats-remaining');
+  var registrationList = document.getElementById('registration-list');
+  var registrationSearch = document.getElementById('registration-search');
+  var registrationFilter = document.getElementById('registration-filter');
+  var exportButton = document.getElementById('export-registrations');
+
+  var MAX_SEATS = 150;
+  var STORAGE_KEY = 'shesolves_registrations';
+
+  function getRegistrations() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  }
+
+  function saveRegistrations(registrations) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(registrations));
+  }
+
+  function getTrackName(track) {
+    if (track === 'dsa') return 'Track A — DSA Sprint';
+    if (track === 'build') return 'Track B — Build-a-thon';
+    return 'Not sure yet';
+  }
+
+  function renderRegistrations() {
+    var registrations = getRegistrations();
+    var search = registrationSearch ? registrationSearch.value.toLowerCase().trim() : '';
+    var filter = registrationFilter ? registrationFilter.value : 'all';
+
+    var filtered = registrations.filter(function (registration) {
+      var matchesSearch =
+        registration.name.toLowerCase().includes(search) ||
+        registration.email.toLowerCase().includes(search);
+
+      var matchesFilter =
+        filter === 'all' || registration.track === filter;
+
+      return matchesSearch && matchesFilter;
+    });
+
+    if (registrationCount) {
+      registrationCount.textContent = registrations.length;
+    }
+
+    if (seatsRemaining) {
+      seatsRemaining.textContent = Math.max(
+        MAX_SEATS - registrations.length,
+        0
+      );
+    }
+
+    if (!registrationList) return;
+
+    if (filtered.length === 0) {
+      registrationList.innerHTML =
+        '<tr><td colspan="4" class="empty-registrations">No matching registrations.</td></tr>';
+      return;
+    }
+
+    registrationList.innerHTML = filtered.map(function (registration) {
+      return (
+        '<tr>' +
+          '<td>' + escapeHtml(registration.name) + '</td>' +
+          '<td>' + escapeHtml(registration.email) + '</td>' +
+          '<td>' + escapeHtml(getTrackName(registration.track)) + '</td>' +
+          '<td><button class="delete-registration" data-email="' +
+            escapeHtml(registration.email) +
+            '">Delete</button></td>' +
+        '</tr>'
+      );
+    }).join('');
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+
       var name = form.name.value.trim();
-      var email = form.email.value.trim();
+      var email = form.email.value.trim().toLowerCase();
+      var track = form.track.value;
+
       var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      var registrations = getRegistrations();
 
       if (!name || !emailPattern.test(email)) {
-        formNote.textContent = 'Please enter your name and a valid email address.';
+        formNote.textContent =
+          'Please enter your name and a valid email address.';
         formNote.classList.add('is-error');
         return;
       }
 
-      formNote.classList.remove('is-error');
-      formNote.textContent = 'You\u2019re on the list, ' + name.split(' ')[0] + '! Check ' + email + ' for a confirmation.';
-      form.reset();
+      var duplicate = registrations.some(function (registration) {
+        return registration.email === email;
+      });
 
-      /* In production, replace this with a real submission, e.g.:
-         fetch('https://your-form-endpoint', { method: 'POST', body: new FormData(form) }); */
+      if (duplicate) {
+        formNote.textContent =
+          'This email is already registered.';
+        formNote.classList.add('is-error');
+        return;
+      }
+
+      if (registrations.length >= MAX_SEATS) {
+        formNote.textContent =
+          'Registration is full. All 150 seats have been reserved.';
+        formNote.classList.add('is-error');
+        return;
+      }
+
+      registrations.push({
+        name: name,
+        email: email,
+        track: track
+      });
+
+      saveRegistrations(registrations);
+      renderRegistrations();
+
+      formNote.classList.remove('is-error');
+      formNote.textContent =
+        'Registration confirmed for ' + name.split(' ')[0] + '!';
+      form.reset();
     });
   }
+
+  if (registrationSearch) {
+    registrationSearch.addEventListener('input', renderRegistrations);
+  }
+
+  if (registrationFilter) {
+    registrationFilter.addEventListener('change', renderRegistrations);
+  }
+
+  if (registrationList) {
+    registrationList.addEventListener('click', function (e) {
+      if (!e.target.classList.contains('delete-registration')) return;
+
+      var email = e.target.getAttribute('data-email');
+
+      var registrations = getRegistrations().filter(function (registration) {
+        return registration.email !== email;
+      });
+
+      saveRegistrations(registrations);
+      renderRegistrations();
+    });
+  }
+
+  if (exportButton) {
+    exportButton.addEventListener('click', function () {
+      var registrations = getRegistrations();
+
+      if (registrations.length === 0) {
+        alert('There are no registrations to export.');
+        return;
+      }
+
+      var csv = 'Name,Email,Preferred Track\n';
+
+      registrations.forEach(function (registration) {
+        csv += '"' +
+          registration.name.replace(/"/g, '""') + '","' +
+          registration.email.replace(/"/g, '""') + '","' +
+          getTrackName(registration.track).replace(/"/g, '""') +
+          '"\n';
+      });
+
+      var blob = new Blob([csv], { type: 'text/csv' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+
+      link.href = url;
+      link.download = 'shesolves-registrations.csv';
+      link.click();
+
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  renderRegistrations();
 
   /* ---------- Footer year ---------- */
   var yearEl = document.getElementById('year');
