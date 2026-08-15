@@ -311,11 +311,37 @@
       </form>
     </div>
   </section>
-  <!-- ============ REGISTRATION MANAGEMENT ============ -->
-  <section class="registration-management section-alt" id="registrations">
+  <div class="admin-login-panel" id="admin-login-panel">
     <div class="wrap">
-      <p class="section-eyebrow">Registration management</p>
-      <h2>Manage registrations</h2>
+      <form class="admin-login-form" id="admin-login-form" novalidate>
+        <p class="section-eyebrow">Admin access</p>
+        <h2>Manage registrations</h2>
+        <div class="field admin-field">
+          <label for="admin-username">Username</label>
+          <input type="text" id="admin-username" name="username" autocomplete="username" required>
+        </div>
+        <div class="field admin-field">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" name="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-wide">Login</button>
+        <p class="form-note admin-login-note" id="admin-login-note" role="status"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ REGISTRATION MANAGEMENT ============ -->
+  <section class="registration-management section-alt" id="registrations" hidden>
+    <div class="wrap">
+      <div class="registration-header-row">
+        <div>
+          <p class="section-eyebrow">Registration management</p>
+          <h2>Manage registrations</h2>
+        </div>
+        <button type="button" class="btn btn-secondary admin-logout-btn" id="admin-logout-btn">
+          Logout
+        </button>
+      </div>
       <p class="section-lede">
         Track participants, manage seats, and export the registration list.
       </p>

@@ -129,9 +129,78 @@
   var registrationSearch = document.getElementById('registration-search');
   var registrationFilter = document.getElementById('registration-filter');
   var exportButton = document.getElementById('export-registrations');
+  var adminLoginPanel = document.getElementById('admin-login-panel');
+  var adminLoginForm = document.getElementById('admin-login-form');
+  var adminLoginNote = document.getElementById('admin-login-note');
+  var registrationSection = document.getElementById('registrations');
+  var adminLogoutButton = document.getElementById('admin-logout-btn');
 
   var MAX_SEATS = 150;
   var STORAGE_KEY = 'shesolves_registrations';
+  var ADMIN_USERNAME = 'admin';
+  var ADMIN_PASSWORD = 'admin123';
+  var ADMIN_SESSION_KEY = 'shesolves_admin_logged_in';
+
+  function isAdminLoggedIn() {
+    return sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+  }
+
+  function setAdminAccess(isLoggedIn) {
+    if (adminLoginPanel) {
+      adminLoginPanel.hidden = isLoggedIn;
+    }
+
+    if (registrationSection) {
+      registrationSection.hidden = !isLoggedIn;
+    }
+
+    if (adminLoginForm && !isLoggedIn) {
+      adminLoginForm.reset();
+      if (adminLoginNote) {
+        adminLoginNote.textContent = '';
+        adminLoginNote.classList.remove('is-error');
+      }
+    }
+  }
+
+  function addFloatingOrbs() {
+    var containers = [
+      adminLoginPanel,
+      registrationSection
+    ].filter(Boolean);
+
+    containers.forEach(function (container) {
+      if (container.querySelector('.floating-orb')) return;
+
+      for (var i = 0; i < 5; i += 1) {
+        var orb = document.createElement('span');
+        orb.className = 'floating-orb';
+        orb.style.left = (Math.random() * 80 + 6) + '%';
+        orb.style.top = (Math.random() * 65 + 8) + '%';
+        orb.style.width = (Math.random() * 90 + 40) + 'px';
+        orb.style.height = orb.style.width;
+        orb.style.background = i % 2 === 0 ? 'rgba(108, 79, 246, 0.14)' : 'rgba(31, 216, 164, 0.16)';
+        orb.style.animationDelay = (i * 0.6) + 's';
+        container.appendChild(orb);
+      }
+    });
+  }
+
+  function setupButtonMotion() {
+    document.querySelectorAll('.btn').forEach(function (button) {
+      button.addEventListener('pointermove', function (event) {
+        var rect = button.getBoundingClientRect();
+        var x = ((event.clientX - rect.left) / rect.width) * 100;
+        var y = ((event.clientY - rect.top) / rect.height) * 100;
+
+        button.style.background = 'radial-gradient(circle at ' + x + '% ' + y + '%, rgba(255,255,255,0.9), rgba(255,255,255,0.15) 18%, transparent 30%), var(--coral)';
+      });
+
+      button.addEventListener('pointerleave', function () {
+        button.style.background = '';
+      });
+    });
+  }
 
   function getRegistrations() {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -257,6 +326,41 @@
     });
   }
 
+  if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var username = adminLoginForm.username.value.trim();
+      var password = adminLoginForm.password.value.trim();
+
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+        setAdminAccess(true);
+
+        if (adminLoginNote) {
+          adminLoginNote.textContent = 'Logged in successfully.';
+          adminLoginNote.classList.remove('is-error');
+          adminLoginNote.style.color = '#1FD8A4';
+        }
+
+        return;
+      }
+
+      if (adminLoginNote) {
+        adminLoginNote.textContent = 'Invalid username or password.';
+        adminLoginNote.classList.add('is-error');
+        adminLoginNote.style.color = '#FF6B5B';
+      }
+    });
+  }
+
+  if (adminLogoutButton) {
+    adminLogoutButton.addEventListener('click', function () {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      setAdminAccess(false);
+    });
+  }
+
   if (registrationSearch) {
     registrationSearch.addEventListener('input', renderRegistrations);
   }
@@ -311,6 +415,9 @@
     });
   }
 
+  addFloatingOrbs();
+  setupButtonMotion();
+  setAdminAccess(isAdminLoggedIn());
   renderRegistrations();
 
   /* ---------- Footer year ---------- */
